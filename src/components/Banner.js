@@ -58,7 +58,7 @@ export const Banner = () => {
                 <span className="tagline">Welcome to my Portfolio</span>
                 <h1>{`Hi! I'm Tushar Gupta`} <span className="txt-rotate" dataPeriod="1000" data-rotate='[ "Web Developer", "Web Designer", "UI/UX Designer" ]'><span className="wrap">{text}</span></span></h1>
                   <p>Welcome to my digital playground! As a web developer, I craft seamless and visually captivating online experiences, turning ideas into reality through a blend of cutting-edge technology and design finesse.</p>
-                  <button onClick={() => console.log('connect')}>Let’s Connect <ArrowRightCircle size={25} /></button>
+                  <button onClick={() => window.location.href = 'https://drive.google.com/drive/u/0/folders/1nPzYbGkMhgCnR5yvpmtNwreLXayvjFZP'}>Download CV <ArrowRightCircle size={25} /></button>
               </div>}
             </TrackVisibility>
           </Col>

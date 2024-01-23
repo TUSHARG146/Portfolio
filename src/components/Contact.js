@@ -4,6 +4,7 @@ import { Container, Row, Col } from "react-bootstrap";
 import contactImg from "../assets/img/contact-img.svg";
 import 'animate.css';
 import TrackVisibility from 'react-on-screen';
+import emailjs from "emailjs-com";
 
 export const Contact = () => {
   const formInitialDetails = {
@@ -24,9 +25,7 @@ export const Contact = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const sendEmail = async () => {
     // Check if required fields are empty
     if (!formDetails.firstName || !formDetails.email || !formDetails.message) {
       setStatus({ success: false, message: 'Please fill out all required fields.' });
@@ -34,21 +33,52 @@ export const Contact = () => {
     }
 
     setButtonText("Sending...");
-    let response = await fetch("http://localhost:5000/contact", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json;charset=utf-8",
-      },
-      body: JSON.stringify(formDetails),
-    });
-    setButtonText("Send");
-    let result = await response.json();
-    setFormDetails(formInitialDetails);
-    if (result.code === 200) {
-      setStatus({ success: true, message: 'Message sent successfully' });
-    } else {
+
+    // Use your EmailJS template and user ID
+    const templateParams = {
+      fName: formDetails.firstName,
+      lName: formDetails.lastName,
+      emailid: formDetails.email,
+      phoneno: formDetails.phone,
+      message: formDetails.message,
+    };
+
+    try {
+      // Send email using EmailJS
+      const response = await emailjs.send(
+        process.env.REACT_APP_EMAILJS_SERVICE_ID,
+        process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+        templateParams,
+        process.env.REACT_APP_EMAILJS_USER_ID
+      );
+
+      // Check the response status
+      if (response.status === 200) {
+        // Set success status
+        setStatus({ success: true, message: 'Message sent successfully' });
+
+        // Clear success message after 5 seconds
+        setTimeout(() => {
+          setStatus({});
+        }, 5000);
+
+        // Reset form
+        setFormDetails(formInitialDetails);
+      } else {
+        // Set error status
+        setStatus({ success: false, message: 'Something went wrong, please try again later.' });
+      }
+    } catch (error) {
+      // Set error status
       setStatus({ success: false, message: 'Something went wrong, please try again later.' });
+    } finally {
+      setButtonText("Send");
     }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    sendEmail();
   };
 
   return (

@@ -1,20 +1,27 @@
 // server.js
+const path = require("path");
 const express = require("express");
-const router = express.Router();
 const cors = require("cors");
 const nodemailer = require("nodemailer");
+const bodyParser = require("body-parser");
+require("dotenv").config();
+
+const PORT = process.env.PORT || 3001;
 
 const app = express();
 app.use(cors());
-app.use(express.json());
-app.use("/", router);
-app.listen(5000, () => console.log("Server Running"));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true })); // Fix: use extended instead of extend
+
+app.get("/api", (req, res) => {
+  res.json({ message: "Hello from server!" })
+});
 
 const contactEmail = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: "tushar146gpt@gmail.com",
-    pass: "janm eyol wxbm bhbv"
+    user: process.env.EMAIL_ADDRESS,
+    pass: process.env.EMAIL_PASS
   },
 });
 
@@ -26,10 +33,9 @@ contactEmail.verify((error) => {
   }
 });
 
-router.post("/contact", (req, res) => {
+app.post("/api/contact", (req, res) => { // Fix: Use bodyParser.urlencoded({ extended: true })
   const { firstName, lastName, email, message, phone } = req.body;
 
-  // Check for required fields
   if (!firstName || !email || !message) {
     res.status(400).json({ code: 400, status: "Bad Request", message: "Please fill out all required fields." });
     return;
@@ -38,7 +44,7 @@ router.post("/contact", (req, res) => {
   const name = `${firstName} ${lastName}`;
   const mail = {
     from: name,
-    to: "tushar146gpt@gmail.com",
+    to: process.env.EMAIL_ADDRESS,
     subject: "Contact Form Submission - Portfolio",
     html: `<p>Name: ${name}</p>
            <p>Email: ${email}</p>
@@ -48,9 +54,13 @@ router.post("/contact", (req, res) => {
 
   contactEmail.sendMail(mail, (error) => {
     if (error) {
-      res.status(500).json({ code: 500, status: "Internal Server Error", error });
+      res.json(error);
     } else {
-      res.status(200).json({ code: 200, status: "Message Sent" });
+      res.json({ code: 200, status: "Message Sent" });
     }
   });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is online on port: ${PORT}`);
 });
