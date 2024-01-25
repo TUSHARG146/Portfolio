@@ -66,10 +66,12 @@ export const Contact = () => {
         setFormDetails(formInitialDetails);
       } else {
         // Set error status
+        console.log(response);
         setStatus({ success: false, message: 'Something went wrong, please try again later.' });
       }
     } catch (error) {
       // Set error status
+      console.log(error);
       setStatus({ success: false, message: 'Something went wrong, please try again later.' });
     } finally {
       setButtonText("Send");
